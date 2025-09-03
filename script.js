@@ -9,7 +9,6 @@ let lotImages = {};
 let nameToBidNumber = {};
 let bidBoard = {};
 
-// Convert Google Sheets to JSON-friendly URL
 const sheetToJSON = (sheetName) => `https://docs.google.com/spreadsheets/d/1tvE1IDZKQLje2K64Et0nQy0jTlOcnLOPma6Ys_ZWciI/gviz/tq?tqx=out:json&sheet=${sheetName}`;
 
 async function fetchSheetData(sheetName) {
@@ -75,7 +74,6 @@ function updateImage() {
         img.style.display = 'none';
     }
 
-    // Update bid
     const currentBid = bidBoard[lot] || 0;
     const bidInput = document.getElementById('bidAmount');
     const prompt = document.getElementById('bidPrompt');
@@ -88,56 +86,96 @@ function updateImage() {
     }
 }
 
+function clearErrors() {
+    document.getElementById('saleLotError').textContent = '';
+    document.getElementById('nameError').textContent = '';
+    document.getElementById('bidNumberError').textContent = '';
+    document.getElementById('bidError').textContent = '';
+}
+
 function validateForm() {
+    clearErrors();
+    let valid = true;
+
     const name = document.getElementById('bidderName').value.trim();
     const bidNumber = document.getElementById('biddingNumber').value.trim();
     const lot = document.getElementById('saleLot').value;
     const bid = parseInt(document.getElementById('bidAmount').value);
 
+    if (!lot) {
+        document.getElementById('saleLotError').textContent = "Please select a Sale Lot.";
+        valid = false;
+    }
+
     if (!(name in nameToBidNumber)) {
-        alert("Name is invalid or not found in records.");
-        return false;
+        document.getElementById('nameError').textContent = "Name is invalid or not found in records.";
+        valid = false;
     }
 
     if (bidNumber !== nameToBidNumber[name]) {
-        alert("Bidding number does not match name.");
-        return false;
+        document.getElementById('bidNumberError').textContent = "Bidding number does not match name.";
+        valid = false;
     }
 
     const currentBid = bidBoard[lot] || 0;
-    if (bid < 400 || (bid <= currentBid)) {
-        alert("Bid must be at least $400 and greater than current bid.");
-        return false;
+    if (bid < 400 || bid <= currentBid) {
+        document.getElementById('bidError').textContent = "Bid must be at least $400 and greater than current bid.";
+        valid = false;
     }
 
     if (bid % 100 !== 0) {
-        alert("Bid must be in increments of $100.");
-        return false;
+        document.getElementById('bidError').textContent = "Bid must be in increments of $100.";
+        valid = false;
     }
 
-    return true;
+    return valid;
 }
 
 function submitForm() {
     if (!validateForm()) return;
 
-    const formData = new FormData();
-    formData.append("entry.1393425854", document.getElementById('saleLot').value);
-    formData.append("entry.2014194198", document.getElementById('bidderName').value.trim());
-    formData.append("entry.938652901", document.getElementById('biddingNumber').value.trim());
-    formData.append("entry.849028228", document.getElementById('bidAmount').value);
+    // Create a temporary form to submit to Google Form
+    const tempForm = document.createElement('form');
+    tempForm.action = "https://docs.google.com/forms/d/e/1FAIpQLSeyHGovAvqCszajtXfqdgOGNya0qTfxzhNTxMnsr5b03x6tJA/formResponse";
+    tempForm.method = "POST";
+    tempForm.target = "hidden_iframe";
 
-    fetch("https://docs.google.com/forms/d/e/1FAIpQLSeyHGovAvqCszajtXfqdgOGNya0qTfxzhNTxMnsr5b03x6tJA/formResponse", {
-        method: "POST",
-        body: formData
-    }).then(() => {
-        alert("Bid submitted successfully!");
-        document.getElementById('bidForm').reset();
-        document.getElementById('saleImage').style.display = 'none';
-    }).catch(err => {
-        alert("Error submitting form. Try again.");
-        console.error(err);
-    });
+    const fields = {
+        "entry.1393425854": document.getElementById('saleLot').value,
+        "entry.2014194198": document.getElementById('bidderName').value.trim(),
+        "entry.938652901": document.getElementById('biddingNumber').value.trim(),
+        "entry.849028228": document.getElementById('bidAmount').value
+    };
+
+    for (const key in fields) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = fields[key];
+        tempForm.appendChild(input);
+    }
+
+    // Add a hidden iframe to prevent page reload
+    const iframe = document.createElement('iframe');
+    iframe.name = "hidden_iframe";
+    iframe.style.display = "none";
+    document.body.appendChild(iframe);
+
+    document.body.appendChild(tempForm);
+    tempForm.submit();
+
+    // Clean up
+    tempForm.remove();
+    iframe.remove();
+    document.getElementById('bidForm').reset();
+    document.getElementById('saleImage').style.display = 'none';
+
+    // Show notification
+    const notif = document.getElementById('notification');
+    notif.style.display = 'block';
+    setTimeout(() => {
+        notif.style.display = 'none';
+    }, 3000);
 }
 
 window.onload = initializeData;
