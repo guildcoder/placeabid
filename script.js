@@ -124,48 +124,29 @@ function validateForm() {
 function submitForm() {
     if (!validateForm()) return;
 
-    // Create a temporary form to submit to Google Form
-    const tempForm = document.createElement('form');
-    tempForm.action = "https://docs.google.com/forms/d/e/1FAIpQLSeyHGovAvqCszajtXfqdgOGNya0qTfxzhNTxMnsr5b03x6tJA/formResponse";
-    tempForm.method = "POST";
-    tempForm.target = "hidden_iframe";
+    const lot = document.getElementById('saleLot').value;
+    const name = document.getElementById('bidderName').value.trim();
+    const bidNumber = document.getElementById('biddingNumber').value.trim();
+    const bidAmount = document.getElementById('bidAmount').value;
 
-    const fields = {
-        "entry.1393425854": document.getElementById('saleLot').value,
-        "entry.2014194198": document.getElementById('bidderName').value.trim(),
-        "entry.938652901": document.getElementById('biddingNumber').value.trim(),
-        "entry.849028228": document.getElementById('bidAmount').value
-    };
+    // Construct the pre-filled Google Form URL
+    const url = `https://docs.google.com/forms/d/e/1FAIpQLSeyHGovAvqCszajtXfqdgOGNya0qTfxzhNTxMnsr5b03x6tJA/viewform?usp=pp_url
+        &entry.1393425854=${encodeURIComponent(lot)}
+        &entry.2014194198=${encodeURIComponent(name)}
+        &entry.938652901=${encodeURIComponent(bidNumber)}
+        &entry.849028228=${encodeURIComponent(bidAmount)}`;
 
-    for (const key in fields) {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = key;
-        input.value = fields[key];
-        tempForm.appendChild(input);
-    }
+    // Open the pre-filled form in a new tab
+    window.open(url, "_blank");
 
-    // Add a hidden iframe to prevent page reload
-    const iframe = document.createElement('iframe');
-    iframe.name = "hidden_iframe";
-    iframe.style.display = "none";
-    document.body.appendChild(iframe);
-
-    document.body.appendChild(tempForm);
-    tempForm.submit();
-
-    // Clean up
-    tempForm.remove();
-    iframe.remove();
+    // Reset the form locally
     document.getElementById('bidForm').reset();
     document.getElementById('saleImage').style.display = 'none';
 
     // Show notification
     const notif = document.getElementById('notification');
     notif.style.display = 'block';
-    setTimeout(() => {
-        notif.style.display = 'none';
-    }, 3000);
+    setTimeout(() => { notif.style.display = 'none'; }, 3000);
 }
 
 window.onload = initializeData;
