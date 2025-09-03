@@ -4,7 +4,7 @@ google.charts.load('current', {'packages':['table']});
 // Spreadsheet URL
 const SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/1tvE1IDZKQLje2K64Et0nQy0jTlOcnLOPma6Ys_ZWciI/edit?usp=sharing';
 
-let lotListings = [];
+let lotListings = ['Lot 1', 'Lot 2', 'Lot 3'];
 let lotImages = {};
 let nameToBidNumber = {};
 let bidBoard = {};
