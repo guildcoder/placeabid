@@ -68,3 +68,19 @@ button:hover {
     color: #555;
     margin-top: 5px;
 }
+
+.notification {
+    background-color: #CC0000;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 15px;
+}
+.error-msg {
+    color: red;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
