@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Bid Form</title>
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script src="script.js" defer></script>
+</head>
+<body>
+    <div class="form-container">
+        <form id="bidForm" onsubmit="event.preventDefault(); submitForm();">
+            <div class="form-group">
+                <label for="saleLot">Sale Lots</label>
+                <select id="saleLot" onchange="updateImage()" required>
+                    <option value="" disabled selected>Select a lot</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="bidderName">Name</label>
+                <input type="text" id="bidderName" placeholder="Enter your name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="biddingNumber">Bidding Number</label>
+                <input type="text" id="biddingNumber" placeholder="Enter your bidding number" required>
+            </div>
+
+            <div class="form-group">
+                <label for="bidAmount">Bid Amount</label>
+                <input type="number" id="bidAmount" min="400" required>
+                <div class="prompt" id="bidPrompt"></div>
+            </div>
+
+            <button type="submit">Submit Bid</button>
+        </form>
+
+        <img id="saleImage" src="" alt="Selected Lot Image" style="display:none;">
+    </div>
+</body>
+</html>
